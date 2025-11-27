@@ -12,7 +12,7 @@ def main():
 
     connection, _ = server_socket.accept() 
     while True:
-        # data = connection.recv(1024)
+        data = connection.recv(1024)
         connection.sendall(b"+PONG\r\n")
 
 
