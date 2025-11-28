@@ -11,11 +11,8 @@ def main():
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     
     while True:
-        connection, _ = server_socket.accept() 
-        threads = list()
-        
+        connection, _ = server_socket.accept()         
         x = threading.Thread(target=handle_connection, args=(connection,))
-        threads.append(x)
         x.start()
 
 def handle_connection(connection):
