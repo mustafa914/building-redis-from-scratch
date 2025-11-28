@@ -10,10 +10,13 @@ def main():
     #
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     
-
-    connection, _ = server_socket.accept() 
     while True:
-        threading.Thread(target=handle_connection, args=connection)
+        connection, _ = server_socket.accept() 
+        threads = list()
+        
+        x = threading.Thread(target=handle_connection, args=(connection,))
+        threads.append(x)
+        x.start()
 
 def handle_connection(connection):
     while True:
