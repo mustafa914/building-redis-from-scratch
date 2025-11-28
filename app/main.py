@@ -1,5 +1,5 @@
 import socket  # noqa: F401
-import threading
+import select
 
 
 def main():
@@ -9,16 +9,33 @@ def main():
     # Uncomment the code below to pass the first stage
     #
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
+    server_socket.setblocking(False)
+
+    sockets_list = [server_socket]
+
+    readable, _ , _ = select.select(sockets_list, [], [])
+
+    for socket in readable:
+        if socket is server_socket:
+            connection, _ = server_socket.accept()
+            sockets_list.append(connection)
+        else:
+            data = connection.recv(1024)
+            if not data:
+                sockets_list.remove(socket)
+                socket.close()
+            else:
+                sock.sendall(+b"PONG\r\n")
+
     
-    while True:
-        connection, _ = server_socket.accept()         
-        x = threading.Thread(target=handle_connection, args=(connection,))
-        x.start()
 
 def handle_connection(connection):
     while True:
         data = connection.recv(1024)
+        if not data:
+            break
         connection.sendall(b"+PONG\r\n")
+    connection.close()
 
 
 if __name__ == "__main__":
