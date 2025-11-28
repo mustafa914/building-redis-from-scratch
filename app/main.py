@@ -18,7 +18,10 @@ def main():
 def handle_connection(connection):
     while True:
         data = connection.recv(1024)
+        if not data:
+            break
         connection.sendall(b"+PONG\r\n")
+    connection.close()
 
 
 if __name__ == "__main__":
