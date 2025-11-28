@@ -12,8 +12,11 @@ def main():
     
 
     connection, _ = server_socket.accept() 
-    while True:
-        threading.Thread(target=handle_connection, args=connection)
+    threads = list()
+    
+    x = threading.Thread(target=handle_connection, args=connection)
+    threads.append(x)
+    x.start()
 
 def handle_connection(connection):
     while True:
