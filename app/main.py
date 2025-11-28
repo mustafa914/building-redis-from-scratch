@@ -1,5 +1,5 @@
 import socket  # noqa: F401
-import thread
+import threading
 
 
 def main():
