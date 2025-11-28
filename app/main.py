@@ -1,4 +1,5 @@
 import socket  # noqa: F401
+import thread
 
 
 def main():
@@ -9,11 +10,12 @@ def main():
     #
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     
+
+    connection, _ = server_socket.accept() 
     while True:
-        connection, _ = server_socket.accept() 
-        while True:
-            data = connection.recv(1024)
-            connection.sendall(b"+PONG\r\n")
+        threading.Thread(target=main, args=connection)
+        data = connection.recv(1024)
+        connection.sendall(b"+PONG\r\n")
 
 
 
