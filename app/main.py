@@ -21,10 +21,13 @@ async def handle_connection(reader, writer):
         data = await reader.read(1024)
         if not data:
             break
-        writer.write(b"+PONG\r\n")
+        writer.write(data)
         await writer.drain()
     writer.close()
     await writer.wait_closed()
+
+
+
 
 
 if __name__ == "__main__":
