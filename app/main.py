@@ -13,10 +13,12 @@ def main():
 
     connection, _ = server_socket.accept() 
     while True:
-        threading.Thread(target=main, args=connection)
+        threading.Thread(target=handle_connection, args=connection)
+
+def handle_connection(connection):
+    while True:
         data = connection.recv(1024)
         connection.sendall(b"+PONG\r\n")
-
 
 
 if __name__ == "__main__":
