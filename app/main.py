@@ -21,10 +21,54 @@ async def handle_connection(reader, writer):
         data = await reader.read(1024)
         if not data:
             break
-        writer.write(b"+PONG\r\n")
+        values = parse_data(data)
+        response = handle_command(values)
+        writer.write(encode_as_bulk_string(response))
         await writer.drain()
     writer.close()
     await writer.wait_closed()
+
+def handle_command(values):
+    command = values[0].upper()
+    if command == b"ECHO":
+        arg = values[1]
+        return arg
+    elif command == b"PING":
+        return "PONG"
+
+def encode_as_bulk_string(value):
+    len_string = len(value)
+    bytestr_len_string = str(len_string).encode()
+    bulk_string = b"$"+ bytestr_len_string + b"\r\n" + value + b"\r\n"
+    return bulk_string
+
+def parse_data(data):
+    return parse_resp_array(data)
+
+def parse_resp_array(data):
+    header_end = data.find(b"\r\n")
+    length_array = data[1:header_end]
+    count_array = int(length_array)
+    parsed_strings_list = []
+    remaining = data[header_end+2:]
+    for i in range(count_array):
+        value, remaining = parse_resp_bulk_string(remaining)
+        parsed_strings_list.append(value)
+    
+    return parsed_strings_list
+
+
+def parse_resp_bulk_string(data):
+    header_end = data.find(b"\r\n")
+    length_string = data[1:header_end]
+    length = int(length_string)
+    start = header_end + 2
+    end = start + length
+    value = data[start:end]
+    remaining = data[end+2:]
+    return value, remaining 
+
+
 
 
 if __name__ == "__main__":
