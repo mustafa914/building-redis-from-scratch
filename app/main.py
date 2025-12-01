@@ -31,13 +31,29 @@ def handle_command(values):
         arg = values[1]
         return encode_as_bulk_string(arg)
     elif command == b"PING":
-        return b"+PONG\r\n"
+        return encode_as_simple_string(b"PONG")
+    elif command == b"SET":
+        key = values[1]
+        value = values[2]
+        hashmap[key] = value
+        return encode_as_simple_string(b"OK")
+    elif command == b"GET":
+        key = values[1]
+        returned_value = hashmap[key]
+        if not returned_value:
+            return "$-1\r\n"
+        else:
+            return encode_as_bulk_string(returned_value)
+
 
 def encode_as_bulk_string(value):
     len_string = len(value)
     bytestr_len_string = str(len_string).encode()
     bulk_string = b"$"+ bytestr_len_string + b"\r\n" + value + b"\r\n"
     return bulk_string
+
+def encode_as_simple_string(value):
+    return b"+" + value + b"\r\n"
 
 def parse_data(data):
     return parse_resp_array(data)
@@ -65,6 +81,7 @@ def parse_resp_bulk_string(data):
     remaining = data[end+2:]
     return value, remaining 
 
+hashmap = {}
 
 
 
