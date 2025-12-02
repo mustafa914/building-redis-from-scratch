@@ -1,5 +1,6 @@
 import asyncio
 
+hashmap = {}
 
 async def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -33,17 +34,46 @@ def handle_command(values):
     elif command == b"PING":
         return encode_as_simple_string(b"PONG")
     elif command == b"SET":
-        key = values[1]
-        value = values[2]
-        hashmap[key] = value
-        return encode_as_simple_string(b"OK")
+        handle_set_command(values)
+        # key = values[1]
+        # value = values[2]
+        # hashmap[key] = value
+        # return encode_as_simple_string(b"OK")
     elif command == b"GET":
-        key = values[1]
-        returned_value = hashmap[key]
-        if not returned_value:
-            return "$-1\r\n"
-        else:
-            return encode_as_bulk_string(returned_value)
+        handle_get_command(values)
+        # key = values[1]
+        # returned_value = hashmap[key]
+        # if not returned_value:
+        #     return "$-1\r\n"
+        # else:
+        #     return encode_as_bulk_string(returned_value)
+
+def handle_set_command(values):
+    key = values[1]
+    value = values[2]
+    expires_at = None
+    
+    if len(values) > 3:
+        option = values[3].upper()
+        if option == b"PX":
+            milliseconds = values[4]
+            expires_at = time.time() + (ms/1000)
+            hashmap[key] = (value, expires_at)
+    return encode_as_simple_string(b"OK")
+
+def handle_get_command(values):
+    key = values[1]
+    returned_value, expires_at = hashmap[key]
+    if not returned_value:
+        return b"$-1\r\n"
+    elif expires_at < time.time():
+        return b"$-1\r\n"
+    else:
+        return encode_as_bulk_string(returned_value)
+
+    
+
+
 
 
 def encode_as_bulk_string(value):
@@ -81,7 +111,6 @@ def parse_resp_bulk_string(data):
     remaining = data[end+2:]
     return value, remaining 
 
-hashmap = {}
 
 
 
