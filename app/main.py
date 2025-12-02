@@ -1,5 +1,6 @@
 import asyncio
 
+hashmap = {}
 
 async def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -81,7 +82,6 @@ def parse_resp_bulk_string(data):
     remaining = data[end+2:]
     return value, remaining 
 
-hashmap = {}
 
 
 
